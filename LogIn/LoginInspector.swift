@@ -7,22 +7,20 @@
 //
 
 import Foundation
+import Firebase
+import FirebaseAuth
+
+protocol LoginViewControllerDelegate: AnyObject {
+    func userCheck(login: String, password: String, completion: ((AuthDataResult?, Error?) -> Void)?)
+}
+
+
 class LoginInspector: LoginViewControllerDelegate {
-    /// Function of login checking
-    func checkLogin(_ login: String) -> Bool {
-        guard login.uppercased() == Checker.shared.login.uppercased() else {
-            return false
-        }
+    
+    
+    func userCheck(login: String, password: String, completion: ((AuthDataResult?, Error?) -> Void)?) {
         
-        return true
+        Auth.auth().signIn(withEmail: login, password: password, completion: completion)
     }
     
-    /// Function of password checking
-    func checkPassword(_ password: String) -> Bool {
-        guard password == Checker.shared.password else {
-            return false
-        }
-        
-        return true
-    }
 }

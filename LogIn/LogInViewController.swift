@@ -1,5 +1,7 @@
 
 import UIKit
+import Firebase
+import FirebaseAuth
 
 class LogInViewController: UIViewController {
     
@@ -19,6 +21,8 @@ class LogInViewController: UIViewController {
     
     var authorizationDelegate: LoginViewControllerDelegate?
     
+    var handle: AuthStateDidChangeListenerHandle?
+    
     var warning: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -33,10 +37,23 @@ class LogInViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         warning.text = ""
+    }
+    
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        //выставляем все Views
         setupViews()
     }
     
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        emailOrPhoneTextField.becomeFirstResponder()
+    }
+    
+    
     private func setupViews(){
+        
+        authorizationDelegate = LoginInspector()
         
         navigationController?.navigationBar.isHidden = true
         let longLine: UIView = {
@@ -45,7 +62,6 @@ class LogInViewController: UIViewController {
             line.translatesAutoresizingMaskIntoConstraints = false
             return line
         }()
-        
         
         logInScrollView.translatesAutoresizingMaskIntoConstraints = false
         wrapperView.translatesAutoresizingMaskIntoConstraints = false
@@ -143,8 +159,21 @@ class LogInViewController: UIViewController {
         
         NotificationCenter.default.removeObserver(self, name: UIResponder.keyboardWillShowNotification, object: nil)
         NotificationCenter.default.removeObserver(self, name: UIResponder.keyboardWillHideNotification, object: nil)
+        
+                   Auth.auth().removeStateDidChangeListener(handle!)
     }
-    
+  
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+
+        handle = Auth.auth().addStateDidChangeListener { (auth, user) in
+            
+            if user != nil {
+                print("User e-mail: \(String(describing: user?.email))")
+            }
+        }
+}
+
     // MARK: Keyboard actions
     @objc fileprivate func keyboardWillShow(notification: NSNotification) {
         if let keyboardSize = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue {
@@ -160,33 +189,98 @@ class LogInViewController: UIViewController {
     }
     
     @objc private func logInButtonPressed() {
-        
+                                
         /// Check that delegate is not nil
-        guard let delegate = self.authorizationDelegate else {
-            warning.text = "Authorization delegate is nil"
-            return
-        }
-        /// Check that login is not empty
-        guard let login = emailOrPhoneTextField.text, login != "" else {
-            warning.text = "Please input login"
-            return
-        }
-        /// Check that password is not empty
-        guard let password = passwordTextField.text, password != "" else {
-            warning.text = "Please input password"
-            return
-        }
-        /// Check login and password
-        if !delegate.checkLogin(login) || !delegate.checkPassword(password) {
-            warning.text = "Login or password wrong"
-            return
-        }
-       
-        // Go to PostsViewController
-        let postsViewController = UIStoryboard(name: "Main", bundle: nil).instantiateViewController(identifier: "PostsViewController")
-        navigationController?.pushViewController(postsViewController, animated: true)
+                guard self.authorizationDelegate != nil else {
+                    warning.text = "Authorization delegate is nil"
+                    return
+                }
+                
+                guard let email = emailOrPhoneTextField.text, !email.isEmpty,
+                      let passwd = passwordTextField.text, !passwd.isEmpty else {
+                    warning.text = "Please input login and password"
+                    return
+                }
+                
+                /// Check that login is not empty
+                guard let login = emailOrPhoneTextField.text, login != "" else {
+                    warning.text = "Please input login"
+                    return
+                }
+                
+                /// Check that password is not empty
+                guard let password = passwordTextField.text, password != "" else {
+                    warning.text = "Please input password"
+                    return
+                }
+                
+        // Get auth instance
+        // attept sign in
+        // if failure, present alert to create account
+        // if user continues, create account
+        
+        // check sign in on app launch
+        
+                FirebaseAuth.Auth.auth().signIn(withEmail: login, password: password, completion: { [weak self] result, error in
+                    
+                    guard let strongSelf = self else {
+                        return
+                    }
+                    
+                    guard error == nil else {
+                        // show account creation
+                        strongSelf.showCreateAccounts(email: login, password: password)
+                        return
+                    }
+                    
+                    print ("You have signed in")
+                    
+                    // Go to PostsViewController
+                    strongSelf.pushToPostViewController()
+                    
+                })
     }
     
+    func showCreateAccounts(email: String, password: String){
+        
+        let alert = UIAlertController(title: "Create Account",
+                                      message: "Would You like to create an account?",
+                                      preferredStyle: .alert)
+        
+        alert.addAction(UIAlertAction(title: "Continue",
+                                      style: .default,
+                                      handler: { _ in
+                                        
+                                        FirebaseAuth.Auth.auth().createUser(withEmail: email, password: password, completion: { [weak self] result, error in
+                                            
+                                            guard let strongSelf = self else {
+                                                return
+                                            }
+                                            
+                                            guard error == nil else {
+                                                // show account creation
+                                                print ("Account creation failed")
+                                                return
+                                            }
+                                            print ("You have signed in")
+                                            
+                                            // Go to PostsViewController
+                                            strongSelf.pushToPostViewController()
+                                        })
+                                      }))
+        alert.addAction(UIAlertAction(title: "Cancel",
+                                      style: .cancel,
+                                      handler: { _ in
+                                      }))
+        present(alert, animated: true)
+    }
+    
+    func pushToPostViewController(){
+        
+        let postsViewController = UIStoryboard(name: "Main", bundle: nil).instantiateViewController(identifier: "PostsViewController")
+        self.navigationController?.pushViewController(postsViewController, animated: true)
+        
+    }
 }
 
     extension UIImage {
