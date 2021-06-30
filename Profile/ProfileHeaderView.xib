@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="17701" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+    <device id="retina6_1" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="17703"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="System colors in document resources" minToolsVersion="11.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <view contentMode="scaleToFill" id="SrH-Lu-AI9" customClass="ProfileHeaderView" customModule="Navigation" customModuleProvider="target">
+            <rect key="frame" x="0.0" y="0.0" width="414" height="220"/>
+            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+            <subviews>
+                <imageView clipsSubviews="YES" userInteractionEnabled="NO" tag="-1" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="foto2" translatesAutoresizingMaskIntoConstraints="NO" id="GXr-ry-fHK">
+                    <rect key="frame" x="16" y="16" width="100" height="100"/>
+                    <constraints>
+                        <constraint firstAttribute="width" constant="100" id="IeA-Fm-X9k"/>
+                        <constraint firstAttribute="height" constant="100" id="dv2-oE-rqw"/>
+                    </constraints>
+                </imageView>
+                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" insetsLayoutMarginsFromSafeArea="NO" usesAttributedText="YES" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="p0Q-sr-G1W">
+                    <rect key="frame" x="132" y="27" width="160.5" height="21.5"/>
+                    <attributedString key="attributedText">
+                        <fragment content="Павел Миркитанов">
+                            <attributes>
+                                <color key="NSColor" systemColor="labelColor"/>
+                                <font key="NSFont" metaFont="system" size="18"/>
+                            </attributes>
+                        </fragment>
+                    </attributedString>
+                    <nil key="highlightedColor"/>
+                </label>
+                <textField opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" text="Waiting for something..." textAlignment="natural" minimumFontSize="14" translatesAutoresizingMaskIntoConstraints="NO" id="NEW-zD-wlW">
+                    <rect key="frame" x="132" y="80" width="154" height="18"/>
+                    <color key="backgroundColor" white="0.66666666669999997" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                    <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                    <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                    <textInputTraits key="textInputTraits"/>
+                </textField>
+                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="11R-JR-hNl">
+                    <rect key="frame" x="16" y="132" width="382" height="50"/>
+                    <color key="backgroundColor" systemColor="linkColor"/>
+                    <constraints>
+                        <constraint firstAttribute="height" constant="50" id="ebf-ej-MTH"/>
+                    </constraints>
+                    <state key="normal" title="Show status">
+                        <color key="titleColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                    </state>
+                    <connections>
+                        <action selector="setStatusButton:" destination="SrH-Lu-AI9" eventType="touchUpInside" id="dCq-e2-oeg"/>
+                    </connections>
+                </button>
+            </subviews>
+            <viewLayoutGuide key="safeArea" id="uQG-lp-Ovl"/>
+            <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+            <constraints>
+                <constraint firstItem="GXr-ry-fHK" firstAttribute="top" secondItem="SrH-Lu-AI9" secondAttribute="top" constant="16" id="1mH-sg-kgy"/>
+                <constraint firstItem="NEW-zD-wlW" firstAttribute="leading" secondItem="GXr-ry-fHK" secondAttribute="trailing" constant="16" id="7DN-sV-uzB"/>
+                <constraint firstItem="11R-JR-hNl" firstAttribute="top" secondItem="GXr-ry-fHK" secondAttribute="bottom" constant="16" id="EwO-IE-IWk"/>
+                <constraint firstItem="p0Q-sr-G1W" firstAttribute="leading" secondItem="GXr-ry-fHK" secondAttribute="trailing" constant="16" id="QcY-Xb-ded"/>
+                <constraint firstItem="11R-JR-hNl" firstAttribute="top" secondItem="NEW-zD-wlW" secondAttribute="bottom" constant="34" id="U45-c5-eKB"/>
+                <constraint firstItem="uQG-lp-Ovl" firstAttribute="trailing" secondItem="11R-JR-hNl" secondAttribute="trailing" constant="16" id="bCt-hN-OWf"/>
+                <constraint firstItem="p0Q-sr-G1W" firstAttribute="top" secondItem="SrH-Lu-AI9" secondAttribute="top" constant="27" id="bMF-HO-wgx"/>
+                <constraint firstItem="11R-JR-hNl" firstAttribute="leading" secondItem="uQG-lp-Ovl" secondAttribute="leading" constant="16" id="r9h-Xb-qpC"/>
+                <constraint firstItem="GXr-ry-fHK" firstAttribute="leading" secondItem="uQG-lp-Ovl" secondAttribute="leading" constant="16" id="rmy-Ja-pRf"/>
+            </constraints>
+            <freeformSimulatedSizeMetrics key="simulatedDestinationMetrics"/>
+            <connections>
+                <outlet property="avatarImageView" destination="GXr-ry-fHK" id="tdw-JR-QDQ"/>
+                <outlet property="fullNameLabel" destination="p0Q-sr-G1W" id="GJX-N4-gQo"/>
+                <outlet property="setStatusButton" destination="11R-JR-hNl" id="22a-mv-ulc"/>
+                <outlet property="statusTextField" destination="NEW-zD-wlW" id="yXt-6I-dSI"/>
+            </connections>
+            <point key="canvasLocation" x="-36" y="57"/>
+        </view>
+    </objects>
+    <resources>
+        <image name="foto2" width="650" height="650"/>
+        <systemColor name="labelColor">
+            <color white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+        </systemColor>
+        <systemColor name="linkColor">
+            <color red="0.0" green="0.47843137254901963" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </systemColor>
+        <systemColor name="systemBackgroundColor">
+            <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+        </systemColor>
+    </resources>
+</document>
