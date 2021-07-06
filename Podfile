@@ -3,8 +3,6 @@
 
 target 'Navigation' do
   use_frameworks!
-	pod 'Firebase/Analytics'
-	pod 'Firebase/Core'
-	pod 'Firebase/Auth'
+	pod 'RealmSwift'
 
 end
