@@ -11,4 +11,6 @@ import Foundation
 protocol LoginViewControllerDelegate {
     func creteUser(id: String, login: String?, password: String?, failure: @escaping (Errors) -> Void) -> Bool
     func checkUsers() -> [User]
+    func setCurrentUser (id: String)
+    func resetCurrentUser (id: String)
 }
