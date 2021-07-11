@@ -3,7 +3,6 @@ import RealmSwift
 
 class LogInViewController: UIViewController {
     
-    
     @IBOutlet var logInScrollView: UIScrollView!
     
     @IBOutlet var logoImageView: UIImageView!
@@ -36,13 +35,38 @@ class LogInViewController: UIViewController {
         super.viewDidLoad()
         
         warning.text = ""
-        setupViews()
         
+        authorizationDelegate = LoginInspector()
+        
+        guard let allUsers = authorizationDelegate?.checkUsers() else {
+            return
+        }
+        
+        print("All users: \(String(describing: allUsers.self))")
+        
+        if  !allUsers.isEmpty {
+            
+            for (index, user) in allUsers.enumerated() {
+                
+                if user.isCurrentUser == true {
+                    currentUserIndex = index
+                    print("Current User: \(String(describing: allUsers[index]))")
+                    warning.text = "Выполняется вход"
+                    pushToPostViewController()
+                    break
+                }
+            }
+            
+        } else {
+            
+            warning.text = "Введите Логин и Пароль"
+        }
+        
+        setupViews()
     }
     
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
-        
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -52,9 +76,8 @@ class LogInViewController: UIViewController {
 
     private func setupViews(){
         
-        authorizationDelegate = LoginInspector()
-        
         navigationController?.navigationBar.isHidden = true
+        
         let longLine: UIView = {
             let line = UIView()
             line.backgroundColor = .lightGray
@@ -152,15 +175,6 @@ class LogInViewController: UIViewController {
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil)
         
-        let users = authorizationDelegate?.checkUsers()
-        guard let currentIndex = currentUserIndex else {return }
-        
-        if users != nil && !users!.isEmpty {
-            print("All users: \(String(describing: users.self))")
-            print("Current User: \(String(describing: users![currentIndex]))")
-            pushToPostViewController()
-        }
-        
     }
     
     override func viewDidDisappear(_ animated: Bool) {
@@ -168,11 +182,14 @@ class LogInViewController: UIViewController {
         
         NotificationCenter.default.removeObserver(self, name: UIResponder.keyboardWillShowNotification, object: nil)
         NotificationCenter.default.removeObserver(self, name: UIResponder.keyboardWillHideNotification, object: nil)
+        
+        emailOrPhoneTextField.text = ""
+        passwordTextField.text = ""
+        warning.text = "Введите Логин и Пароль"
     }
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-        
     }
     
     // MARK: Keyboard actions
@@ -191,6 +208,8 @@ class LogInViewController: UIViewController {
     
     // MARK: - Auth
     @objc private func logInButtonPressed() {
+        
+        warning.text = ""
         
         guard let userDelegate = authorizationDelegate else {
             warning.text = "Authorization delegate is nil"
@@ -211,6 +230,7 @@ class LogInViewController: UIViewController {
         func createNewUser(){
             
             if userDelegate.creteUser(id: UUID().uuidString, login: emailOrPhoneTextField.text, password: passwordTextField.text, failure: self.showAlert) {
+                self.warning.text = "Выполняется вход"
                 print("Вход выполнен успешно")
                 print ("Новый пользователь. Логин - \(String(describing: emailOrPhoneTextField.text!)). Пароль - \(String(describing: passwordTextField.text!))")
                 
@@ -220,7 +240,6 @@ class LogInViewController: UIViewController {
                 warning.text = "Введите Логин и Пароль"
                 return
             }
-            
         }
         
         func showCreateAccounts(email: String, password: String){
@@ -249,17 +268,27 @@ class LogInViewController: UIViewController {
             
         }  else {
             
+            // Выставляем флаг "Пользователь не найден"
             var userNotFound: Bool = true
+            
             
             for (index, user) in users.enumerated() {
                 
                 if user.login == emailOrPhoneTextField.text && user.password == passwordTextField.text {
                     
+                    //Если Пользователь с введенным Логином и Паролем найден, то
+                    //Сохраняем значение текущего индекса Пользователя
                     currentUserIndex = index
+                    
+                    //Выставляем отрицательное значение флага "Пользователь не найден", поскольку Пользователь найден успешно
                     userNotFound = false
                     
+                    warning.text = "Выполняется вход"
+                    // Выводим в консоль информацию об активном Пользователе
                     print("Вход выполнен успешно")
                     print ("Действующий пользователь. Логин - \(user.login). Пароль - \(user.password)")
+                    
+                    //Выполняем переход на экран PostViewController()
                     pushToPostViewController()
                     break
                     
@@ -267,7 +296,6 @@ class LogInViewController: UIViewController {
                     
                     if user.login != emailOrPhoneTextField.text {
                         userNotFound = true
-                        print("Введеный Логин не найден")
                         
                     } else if user.password != passwordTextField.text {
                         userNotFound = false
@@ -277,16 +305,37 @@ class LogInViewController: UIViewController {
                         
                         break
                     }
-                    
                 }
-                
             }
+            
+            
+             // Проходим циклом по всем Пользователям и сбрасываем флаг "Текущий Пользователь"
+             for (index, _) in users.enumerated() {
+             userDelegate.resetCurrentUser(id: users[index].id)
+             }
             
             if userNotFound {
                 print("User Not Found!")
                 // show account creation
+                // Если Пользователь с введенным Логином не найден, предлагаем создать Нового Пользователя
                 showCreateAccounts(email: login, password: password)
+                
+                //При успешном создании нового Пользователя активируем у него флаг "Текущий Пользователь" и запоминаем индекс
                 return
+            } else {
+                // запоминаем индекс
+                guard let currentIndex = currentUserIndex else  {
+                    return
+                }
+                
+                // Если Пользователь с введенным Логином успешно найден, фиксируем успешно вошедшего пользователя
+                print ("Fixing current user: \(users[currentIndex].login)")
+                
+                //запоминаем id
+                let currentId = users[currentIndex].id
+                
+                // активируем у Пользователя флаг "Текущий Пользователь" и
+                userDelegate.setCurrentUser(id: currentId)
             }
         }
     }

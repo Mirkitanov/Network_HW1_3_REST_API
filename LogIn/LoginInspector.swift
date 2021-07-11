@@ -13,6 +13,7 @@ import RealmSwift
     dynamic var id: String?
     dynamic var login: String?
     dynamic var password: String?
+    dynamic var isCurrentUser: Bool = false
     
     override static func primaryKey() -> String? {
         return "id"
@@ -29,8 +30,9 @@ class LoginInspector: LoginViewControllerDelegate {
     
     func checkUsers() -> [User] {
         return realm?.objects(CachedUser.self).compactMap {
-            guard let id = $0.id, let login = $0.login, let password = $0.password else { return nil }
-            return User(id: id, login: login, password: password)
+            guard let id = $0.id, let login = $0.login, let password = $0.password
+            else { return nil }
+            return User(id: id, login: login, password: password, isCurrentUser: $0.isCurrentUser  )
         } ?? []
     }
     
@@ -62,6 +64,7 @@ class LoginInspector: LoginViewControllerDelegate {
             user.id = id
             user.login = login
             user.password = password
+            user.isCurrentUser = true
             
             try? realm?.write {
                 realm?.add(user)
@@ -69,4 +72,30 @@ class LoginInspector: LoginViewControllerDelegate {
             return true
         }
     }
+    
+    func setCurrentUser (id: String){
+
+        guard let user = realm?.object(ofType: CachedUser.self, forPrimaryKey: id ) else {
+            return
+        }
+
+        try? realm?.write({
+            user.isCurrentUser = true
+            print("Curent user is fixed")
+        })
+    }
+    
+    func resetCurrentUser (id: String){
+
+        guard let user = realm?.object(ofType: CachedUser.self, forPrimaryKey: id ) else {
+            return
+        }
+
+        try? realm?.write({
+            user.isCurrentUser = false
+            print("Curent user is reset")
+        })
+    }
+    
+    
 }
