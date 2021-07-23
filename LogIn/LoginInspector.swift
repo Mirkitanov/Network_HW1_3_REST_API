@@ -23,13 +23,8 @@ import RealmSwift
 class LoginInspector: LoginViewControllerDelegate {
 
     private var realm: Realm? {
-        var key = Data(count: 64)
-        _ = key.withUnsafeMutableBytes { (pointers: UnsafeMutableRawBufferPointer) in
-            SecRandomCopyBytes(kSecRandomDefault, 64, pointers.baseAddress!)
-        }
-        
+        let key = RealmEncryption.manager.encryptionKey
         let config = Realm.Configuration(encryptionKey: key)
-        
         return try? Realm(configuration: config)
     }
 
